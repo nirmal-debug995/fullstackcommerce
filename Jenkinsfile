@@ -24,10 +24,12 @@ pipeline {
 
         stage('Deploy to Azure VM') {
             steps {
-                // Use SSH Agent for authentication
                 sshagent(credentials: ['jenkins_key']) {
-                    // Copy the built app to the remote VM
                     sh """
+                    # Ensure the target directory exists
+                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP 'mkdir -p /var/www/commerce-app'
+
+                    # Copy all files from workspace to VM
                     scp -r ./* azureuser@$VM_IP:/var/www/commerce-app
                     """
                 }
