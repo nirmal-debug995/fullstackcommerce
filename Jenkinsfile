@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         VM_IP = "20.244.9.198"
+        TARGET_DIR = "/home/azureuser/commerce-app"
     }
 
     stages {
@@ -26,11 +27,19 @@ pipeline {
             steps {
                 sshagent(credentials: ['jenkins_key']) {
                     sh """
-                    # Ensure the target directory exists
-                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP 'mkdir -p /var/www/commerce-app'
+                    # Create target directory on VM if it doesn't exist
+                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP 'mkdir -p $TARGET_DIR'
 
-                    # Copy all files from workspace to VM
-                    scp -r ./* azureuser@$VM_IP:/var/www/commerce-app
+                    # Copy all files to VM
+                    scp -r ./* azureuser@$VM_IP:$TARGET_DIR
+
+                    # Navigate to target dir, install dependencies, build, and start app
+                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP << 'EOF'
+                    cd $TARGET_DIR
+                    npm install --legacy-peer-deps
+                    npm run build
+                    nohup npm start > app.log 2>&1 &
+                    EOF
                     """
                 }
             }
