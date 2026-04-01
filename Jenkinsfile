@@ -30,16 +30,16 @@ pipeline {
                     # Ensure target directory exists
                     ssh -o StrictHostKeyChecking=no azureuser@$VM_IP 'mkdir -p $TARGET_DIR'
 
-                    # Copy source files except node_modules
+                    # Sync files to VM, excluding node_modules
                     rsync -av --exclude='node_modules' ./ azureuser@$VM_IP:$TARGET_DIR/
 
-                    # Install dependencies and build on VM, then start
-                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP << 'REMOTE_EOF'
-                    cd $TARGET_DIR
-                    npm install --legacy-peer-deps
-                    npm run build
-                    nohup npm start > app.log 2>&1 &
-                    REMOTE_EOF
+                    # Run install and build on the VM
+                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP '
+                        cd $TARGET_DIR
+                        npm install --legacy-peer-deps
+                        npm run build
+                        nohup npm start > app.log 2>&1 &
+                    '
                     """
                 }
             }
