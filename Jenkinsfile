@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VM_IP = "<YOUR_VM_IP>"
+        VM_IP = 20.244.9.198
     }
 
     stages {
@@ -24,12 +24,12 @@ pipeline {
 
         stage('Deploy to Azure VM') {
             steps {
-                sshagent(['azure-vm-ssh-key']) {
+                sshagent(['jenkins-key']) {
                     sh '''
                     ssh -o StrictHostKeyChecking=no azureuser@$VM_IP << EOF
                     cd ~
                     rm -rf commerce
-                    git clone https://github.com/vercel/commerce.git
+                    git clone https://github.com/nirmal-debug995/fullstackcommerce.git
                     cd commerce
                     npm install
                     npm run build
