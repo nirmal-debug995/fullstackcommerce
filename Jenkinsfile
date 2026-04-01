@@ -16,7 +16,7 @@ pipeline {
         stage('Build App') {
             steps {
                 sh '''
-                npm install
+                npm install --legacy-peer-deps
                 npm run build
                 '''
             }
