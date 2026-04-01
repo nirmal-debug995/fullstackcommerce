@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VM_IP = 20.244.9.198
+        VM_IP = "20.244.9.198"
     }
 
     stages {
