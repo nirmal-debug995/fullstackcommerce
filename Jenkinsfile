@@ -24,18 +24,12 @@ pipeline {
 
         stage('Deploy to Azure VM') {
             steps {
-                sshagent(['jenkins-key']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no azureuser@$VM_IP << EOF
-                    cd ~
-                    rm -rf commerce
-                    git clone https://github.com/nirmal-debug995/fullstackcommerce.git
-                    cd commerce
-                    npm install
-                    npm run build
-                    nohup npm start > app.log 2>&1 &
-                    EOF
-                    '''
+                // Use SSH Agent for authentication
+                sshagent(credentials: ['jenkins_key']) {
+                    // Copy the built app to the remote VM
+                    sh """
+                    scp -r ./* azureuser@$VM_IP:/var/www/commerce-app
+                    """
                 }
             }
         }
